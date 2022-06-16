@@ -1,29 +1,37 @@
+//import dependencies
 const express = require('express');
 const fs = require('fs');
-const dotenv = require('dotenv')
 const path = require('path');
+//set port to 3001 if no environment variable is found
+//heroku provides this environment variable
 const PORT = process.env.PORT || 3001;
+//simple helper to create unquire ids
 const uuid = require('./utils/uuid')
 
-const app = express();
 
-// Sets up the Express app to handle data parsing
+// Setup for express
+const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-
 app.use(express.static('public'));
 
+//get request that returns the index.html
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public/index.html'));
 });
+//get request that returns notes.html
 app.get('/notes', (req, res) => {
     res.sendFile(path.join(__dirname, 'public/notes.html'));
 });
+//gets all notes from db.json
 app.get('/api/notes', (req,res)=>{
     res.sendFile(path.join(__dirname, 'db/db.json'));
 })
 
-
+//adds new note to db.json
+//retieves current array of notes
+//adds new note to array
+//overrights db.json with updated notes
 app.post('/api/notes', (req, res) => {
     const { title, text } = req.body;
     const newNote = {
@@ -50,6 +58,11 @@ app.post('/api/notes', (req, res) => {
     });
 })
 
+//delete request
+//reads all notes from db.json
+//finds note with the correct id
+//if note id is not the deleted it adds it to a new list
+//overwrites db.json with updated notes
 app.delete('/api/notes/:id', (req, res) => {
     const updatedNotesArray = []
 
