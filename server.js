@@ -1,9 +1,7 @@
 const express = require('express');
 const fs = require('fs');
-const { parse } = require('path');
 const path = require('path');
 const PORT = 3001;
-const db = require('./db/db.json')
 const uuid = require('./utils/uuid')
 
 const app = express();
@@ -21,7 +19,7 @@ app.get('/notes', (req, res) => {
     res.sendFile(path.join(__dirname, 'public/notes.html'));
 });
 app.get('/api/notes', (req,res)=>{
-    return res.json(db);
+    res.sendFile(path.join(__dirname, 'db/db.json'));
 })
 
 
@@ -46,7 +44,7 @@ app.post('/api/notes', (req, res) => {
                 ? console.error(writeErr)
                 : console.info('Successfully updated notes!')
                 );
-                res.sendFile(path.join(__dirname, 'public/notes.html'));
+        res.sendFile(path.join(__dirname, 'public/notes.html'));
         }
     });
 })
