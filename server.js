@@ -1,8 +1,10 @@
 const express = require('express');
 const fs = require('fs');
+const { parse } = require('path');
 const path = require('path');
 const PORT = 3001;
 const db = require('./db/db.json')
+const uuid = require('./utils/uuid')
 
 const app = express();
 
@@ -24,11 +26,11 @@ app.get('/api/notes', (req,res)=>{
 
 
 app.post('/api/notes', (req, res) => {
-
     const { title, text } = req.body;
     const newNote = {
         title,
-        text
+        text,
+        id:uuid()
     };
     fs.readFile('./db/db.json', 'utf8', (err, data) => {
         if (err) {
@@ -43,12 +45,38 @@ app.post('/api/notes', (req, res) => {
                 writeErr
                 ? console.error(writeErr)
                 : console.info('Successfully updated notes!')
-            );
+                );
+                res.sendFile(path.join(__dirname, 'public/notes.html'));
         }
     });
-
-    
 })
+
+app.delete('/api/notes/:id', (req, res) => {
+    const updatedNotesArray = []
+
+    fs.readFile('./db/db.json', 'utf8', (err, data) => {
+        if (err) {
+            console.error(err);
+        } else {
+            const notesData = JSON.parse(data);
+            for (let i = 0; i < notesData.length; i++) {
+                let noteById = notesData[i].id;
+                if(noteById === req.params.id){
+                    console.log(`deleted   ${noteById}`);
+                }else{
+                    updatedNotesArray.push(notesData[i])
+                };
+            fs.writeFile(
+                './db/db.json',
+                JSON.stringify(updatedNotesArray, null, 4),
+                (writeErr) =>
+                    writeErr
+                    ? console.error(writeErr)
+                    : console.info(`Successfull deleted`)
+                    );
+            }
+            res.sendFile(path.join(__dirname, 'public/notes.html'));
+        }})})
 
 app.listen(PORT, () => {
     console.log(`Example app listening at http://localhost:${PORT}`);
